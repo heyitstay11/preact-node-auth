@@ -1,0 +1,27 @@
+/**
+ * Connect DB 
+ * @module middlewares/connectDB
+ * @requires mongoose
+ * 
+ * @description connectDB middleware  
+ * connects the app to the mongo database
+ * 
+ */
+
+const mongoose = require('mongoose');
+
+/**
+ * @function
+ * creates connection to database
+ */
+const connectDB = () => {
+
+    mongoose.connect(process.env.MONGO_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    })
+    .then(db => console.log('Connected to DB'))
+    .catch(err => console.log(err));
+}
+
+module.exports = { connectDB };
