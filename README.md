@@ -2,7 +2,7 @@
 
 ----
 
-## Back-end
+## Back-end {User auth with Refresh Tokens}
 uses 
 - jsonwebtoken 
 - bcrypt
@@ -10,8 +10,8 @@ uses
 
 ----
 
-## Front-end
-uses 
+## Front-end {Private Routes and Preact Hooks}
+uses
 - Preact framework (lightweight react alterantive only 3kb)
 - WindiCSS (Tailwind but Fasst!)
 
