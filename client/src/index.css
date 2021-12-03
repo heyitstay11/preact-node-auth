@@ -1,0 +1,13 @@
+*, *::after, *::before{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.page-head{
+  @apply text-center text-4xl text-purple-800 my-4;
+}
+
+.button{
+  @apply text-lg text-white no-underline tracking-0.8px uppercase px-5 py-2 bg-purple-600 cursor-pointer transition duration-100 hover:(bg-purple-900);
+}

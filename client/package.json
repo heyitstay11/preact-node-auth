@@ -1,0 +1,20 @@
+{
+  "name": "client",
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "preact": "^10.5.13",
+    "preact-router": "^3.2.1"
+  },
+  "devDependencies": {
+    "@preact/preset-vite": "^2.0.0",
+    "@windicss/plugin-scrollbar": "^1.2.3",
+    "vite": "^2.6.4",
+    "vite-plugin-windicss": "^1.5.3",
+    "windicss": "^3.2.1"
+  }
+}
