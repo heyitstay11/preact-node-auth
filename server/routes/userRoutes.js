@@ -6,15 +6,11 @@
  * @requires jsonwebtoken
  */
 
-/**
- * express Router for user routes
- * @type {object}
- * @constant
- * @namespace userRouter
- */
+
 const router = require('express').Router();
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const { getJWTToken, 
         getRefreshToken, 
         COOKIE_OPTIONS, 
@@ -24,13 +20,13 @@ const { getJWTToken,
  * Route for getting user data
  * @name get-userData
  * @function
- * @memberof module:routes/userRoutes-userRouter
+ * @memberof module:routes/userRoutes
  * @param {string} path - Express path 
  * @param {callback} middleware - Express Middleware
  */
 router.get('/myData', requireAuth, async (req, res) => {
     try {
-        const user = await User.findById(req.user?.id, {password: 0});
+        const user = await User.findById(req.user?.id, {_id: 0,password: 0, __v:0 });
         res.json(user);
     } catch (error) {
         res.status(500).json({error});
@@ -42,7 +38,7 @@ router.get('/myData', requireAuth, async (req, res) => {
  * Route for signing up users
  * @name post-signup
  * @function
- * @memberof module:routes/userRoutes-userRouter
+ * @memberof module:routes/userRoutes
  * @param {string} path - Express path 
  * @param {callback} middleware - Express Middleware
  */
@@ -54,8 +50,9 @@ router.post('/signup', async (req, res) => {
         if(user){
             return res.status(400).json({ msg: "User with this email already exists" });
         }
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        user = await User.create({firstName, lastName, email, password});
+        user = await User.create({firstName, lastName, email, password: hashedPassword});
 
         const [jwtToken, refreshToken] = [getJWTToken({ id: user._id}), getRefreshToken({ id: user._id})];
 
@@ -65,7 +62,7 @@ router.post('/signup', async (req, res) => {
         });
 
         res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
-        res.status(201).json({ token: jwtToken });
+        res.status(201).json({ token: jwtToken , id: user._id });
     } catch (error) {
         res.status(500).json({error});
     }
@@ -76,23 +73,25 @@ router.post('/signup', async (req, res) => {
  * Route for signing up users
  * @name post-login
  * @function
- * @memberof module:routes/userRoutes-userRouter
+ * @memberof module:routes/userRoutes
  * @param {string} path - Express path 
  * @param {callback} middleware - Express Middleware
  */
 router.post('/login', async (req, res) => {
     const {email, password} = req.body;
+
     try {
         const user = await User.login(email, password);
         const [jwtToken, refreshToken] = [getJWTToken({ id: user._id}), getRefreshToken({ id: user._id})];
-
+        
         await User.updateOne(
             { "_id": user._id },
             { $push : { "refreshToken": { refreshToken }}
         });
         
+        // console.log(user.refreshToken);
         res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
-        res.json({token: jwtToken});
+        res.json({token: jwtToken, id: user._id });
     } catch (error) {
         if(error.message){
             error = error.message;
@@ -102,7 +101,14 @@ router.post('/login', async (req, res) => {
     }
 });
 
-
+/** 
+ * Route for refreshing Tokens
+ * @name post-refresh
+ * @function
+ * @memberof module:routes/userRoutes
+ * @param {string} path - Express path 
+ * @param {callback} middleware - Express Middleware
+ */
 router.post('/refresh', async (req, res) => {
     const { signedCookies = {} } = req;
     const { refreshToken } = signedCookies;
@@ -114,8 +120,10 @@ router.post('/refresh', async (req, res) => {
     try {
         const { id : userId } = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
         const user = await User.findById(userId);
+        if(!user) return res.status(401).json({message: "No User Found"});
+
         const tokenIndex = user.refreshToken.findIndex(token => token.refreshToken === refreshToken);
-        
+
         if(tokenIndex === -1){
            return res.status(401).json({message: "Invalid Token"});
         }
@@ -127,17 +135,46 @@ router.post('/refresh', async (req, res) => {
         await user.save(); // Saving the user with updated refreshToken
 
         res.cookie('refreshToken', newRefreshToken, COOKIE_OPTIONS);
-        res.json({token: jwtToken});
+        res.json({token: jwtToken, id: userId });
     } catch (error) {
         console.log({error});
-        res.status(401).json({error});
+        res.status(500).json({error});
     }
 });
 
-// router.get('/id', async (req, res) => {
-//     const user = await User.findById('61a6417a35ac3d908a734ae7');
-//     res.json(user);
-//     await User.deleteMany({});
-// })
+
+/**
+ * @name post-Logout
+ * @function 
+ * @description Handles logout function
+ * @param {string} path - Express path 
+ * @param {callback} middleware - Express Middleware
+ */
+router.post('/logout', requireAuth , async (req, res) => {
+    const { signedCookies = {} } = req;
+    const { refreshToken } = signedCookies;
+
+    try {
+        const user = await User.findById(req.user?.id);
+        if(!user) return res.status(401).json({message: "No User Found"});
+
+        const tokenIndex = user.refreshToken.findIndex(token => token.refreshToken === refreshToken);
+        if(tokenIndex !== -1){
+
+            await User.updateOne(
+               { _id: user._id},
+               { $pull: { refreshToken: { refreshToken: refreshToken}}}
+           );
+    
+           res.cookie("refreshToken", '',{ ...COOKIE_OPTIONS, maxAge: 1});
+           res.json({ success: true , id : user._id})
+        }else{
+            console.log('error')
+            return res.status(401).json({message: "Invalid Token"});
+        }
+    } catch (error) {
+        res.status(500).json({ error })
+    }
+})
 
 module.exports = router;

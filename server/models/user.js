@@ -23,6 +23,7 @@ const Session = new Schema({
 /**
  * User Schema
  * @constructor User
+ * @type {Object} 
  */
 const UserSchema = new Schema({
     firstName: {
@@ -56,16 +57,6 @@ UserSchema.set("toJSON", {
 });
 
 
-// Pre Function to update password before saving
-UserSchema.pre('save', async function(next){
-
-    // update the password to a hashed one before saving in database
-    this.password = await bcrypt.hash(this.password, 10);
-    next(); // Move to next task
-});
-
-
-
 /**
  * Static method for logging in Users
  * @param {string} email 
@@ -75,13 +66,14 @@ UserSchema.pre('save', async function(next){
  */
 UserSchema.statics.login = async function(email, password){
     const user = await this.findOne({ email });
-    if(!user) throw  Error('No Such User Exists');
+    if(!user) throw new Error('No Such User Exists');
 
     const isMatch = await bcrypt.compare(password, user.password);
+   
     if(isMatch){
         return user;
     }
-    throw  Error("Incorrect Password");
+    throw new Error("Incorrect Password");
 }
 
 

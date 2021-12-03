@@ -24,8 +24,8 @@ const JWT_TOKEN_EXPIRY = 15 * 60; // 15 minutes
  * @property {boolean} httpOnly 
  * @property {boolean} secure 
  * @property {boolean} signed 
- * @property {integer} maxAge 
- * @property {integer} sameSite 
+ * @property {integer} maxAge time in millisecs
+ * @property {string} sameSite 
  */
 
 /**
@@ -35,9 +35,9 @@ COOKIE_OPTIONS = {
     httpOnly: true,
     // Since localhost is not having https protocol,
     // secure cookies do not work correctly (in postman)
-    secure: !dev,
+    secure: true,
     signed: true,
-    maxAge: REFRESH_TOKEN_EXPIRY * 1000,
+    maxAge: +(REFRESH_TOKEN_EXPIRY) * 1000,
     sameSite: "none",
 }
 
@@ -67,7 +67,7 @@ const getRefreshToken = ( id ) => {
 }
 
 /**
- * 
+ * @description middleware to check validity of jwt Token
  * @param {Object} req request object with data from client 
  * @param {Object} res response  
  * @param {callback} next  express middleware

@@ -11,8 +11,9 @@
 const mongoose = require('mongoose');
 
 /**
+ * Creates connection to database
  * @function
- * creates connection to database
+ * @param {string} MONGO_URI path to mongo database local/cloud 
  */
 const connectDB = () => {
 
