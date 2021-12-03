@@ -2,6 +2,8 @@
 
 ----
 
+[Code Documentation](https://p-auth-docs.netlify.app/)
+
 ## Back-end {User auth with Refresh Tokens}
 uses 
 - jsonwebtoken 
@@ -34,7 +36,7 @@ Make one .env file in client dir and one in server dir
 server/.env
 ```
 MONGO_URI = {database connection url}
-WHITELISTED_DOMAINS = {front-end port}
+WHITELISTED_DOMAINS = {front-end location(url)}
 JWT_SECRET = {secret string for jwt tokens}
 REFRESH_SECRET =  {a different secret string for refresh tokens}
 COOKIE_SECRET =  {one more secret string for signing cookies}
@@ -42,7 +44,7 @@ COOKIE_SECRET =  {one more secret string for signing cookies}
 
 client/.env
 ```
-VITE_BASE_URL = {back-end port}
+VITE_BASE_URL = {back-end port location(url)}
 ```
 
 Run pnpm dev on both client and server dir
