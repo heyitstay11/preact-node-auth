@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "doc": "jsdoc index.js ./models/user.js ./routes/userRoutes.js ./middlewares/authMiddlewares.js ./middlewares/connectDB.js ./README.md",
+    "doc": "jsdoc index.js ./models/user.js ./routes/userRoutes.js ./middlewares/authMiddlewares.js ./middlewares/connectDB.js ../README.md",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

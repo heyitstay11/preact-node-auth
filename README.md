@@ -29,6 +29,22 @@ Installation Client (from root)
     pnpm install
 ```
 
+Make one .env file in client dir and one in server dir
+
+server/.env
+```
+MONGO_URI = {database connection url}
+WHITELISTED_DOMAINS = {front-end port}
+JWT_SECRET = {secret string for jwt tokens}
+REFRESH_SECRET =  {a different secret string for refresh tokens}
+COOKIE_SECRET =  {one more secret string for signing cookies}
+```
+
+client/.env
+```
+VITE_BASE_URL = {back-end port}
+```
+
 Run pnpm dev on both client and server dir
 ```bash
     pnpm dev
