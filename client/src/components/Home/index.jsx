@@ -10,12 +10,12 @@ export const Home = () => {
             credentials:"include",
             headers: { 
                 "Content-Type": "application/json",
-                "X-Auth-Token": user?.token.toString(),
+                "X-Auth-Token": user?.token,
             },
         }).then(res => res.json())
-        .then(setUser({...user, ["token"] : null}))
-        .catch((err) => {
-            setUser({...user, ["token"] : null})
+        .then(() => {
+            setUser({...user, ["token"] : null});
+            window.localStorage.setItem("logout", Date.now());
         })
     }
     return (

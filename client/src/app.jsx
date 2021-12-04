@@ -4,7 +4,7 @@ import { Login } from './components/Login/'
 import { Signup } from './components/Signup'
 import { Private } from './components/Private'
 import { useUserContext } from './context/userContext';
-import { useEffect } from 'preact/hooks'
+import { useEffect, useCallback } from 'preact/hooks'
 
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
@@ -42,7 +42,21 @@ export const App = () => {
     }, 5 * 60 * 1000);
     verifyUser();
     return () => clearInterval(timer);
-  }, [])
+  }, []);
+
+  // Sync logout from multiple tabs
+  const syncLogout = useCallback((event) => {
+    if (event.key === "logout") {
+      route('/');
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("storage", syncLogout)
+    return () => {
+      window.removeEventListener("storage", syncLogout)
+    }
+  }, [syncLogout]);
   
   const handlePathChange = (e) => {
     if(privateRoutes.includes(e.url) && !authenticated){
