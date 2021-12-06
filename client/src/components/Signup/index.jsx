@@ -30,7 +30,7 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
         })
 
         const data = await res.json();
-        if(res.status === 200){
+        if(res.status === 201){
           setUser({id: data.id, token: data.token});
           setAuthenticated(true);
           route('/');
